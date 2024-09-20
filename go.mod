@@ -1,4 +1,4 @@
-module nwneisen/dex-http-server
+module github.com/mirantiscontainers/dex-http-server
 
 go 1.22.4
 

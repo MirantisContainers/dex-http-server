@@ -5,13 +5,13 @@ import (
 	"flag"
 	"net/http"
 
-	"nwneisen/dex-http-server/gen/go/api"
-
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/grpclog"
+
+	"github.com/mirantiscontainers/dex-http-server/gen/go/api"
 )
 
 var (
