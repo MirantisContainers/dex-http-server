@@ -1,16 +1,19 @@
-MAIN:=cmd/dex-http-server/main.go
+MAIN:=cmd/main.go
 
 # LDFLAGS
 VERSION:=dev
-# VERSION := $(shell git tag --sort=committerdate | tail -1)
+#VERSION := $(shell git tag --sort=committerdate | tail -1)
 COMMIT := $(shell git rev-parse HEAD)
 DATE := $(shell date -u '+%Y-%m-%d')
 LDFLAGS=-ldflags \
 				" \
-				-X github.com/nwneisen/dex-http-server/cmd/main.version=${VERSION} \
-				-X github.com/nwneisen/dex-http-server/cmd/main.commit=${COMMIT} \
-				-X github.com/nwneisen/dex-http-server/cmd/main.date=${DATE} \
+				-X github.com/MirantisContainers/dex-http-server/cmd/main.version=${VERSION} \
+				-X github.com/MirantisContainers/dex-http-server/cmd/main.commit=${COMMIT} \
+				-X github.com/MirantisContainers/dex-http-server/cmd/main.date=${DATE} \
 				"
+IMAGE_REPO ?= ghcr.io/mirantiscontainers
+IMAGE_TAG_BASE ?= $(IMAGE_REPO)/dex-http-server
+IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
 
 .PHONY: help
 help: ## Display this help.
@@ -45,11 +48,22 @@ up: ## Run the project in docker containers
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-	@docker build -t ghcr.io/nwneisen/dex-http-server:${VERSION} .
+	@docker build -t ${IMG} .
+
+PLATFORMS ?= linux/arm64,linux/amd64
+.PHONY: docker-buildx
+docker-buildx: ## Build and push docker image for the manager for cross-platform support
+	# copy existing Dockerfile and insert --platform=${BUILDPLATFORM} into Dockerfile.cross, and preserve the original Dockerfile
+	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
+	- docker buildx create --name project-v3-builder
+	docker buildx use project-v3-builder
+	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
+	- docker buildx rm project-v3-builder
+	rm Dockerfile.cross
 
 .PHONY: docker-clean
 docker-clean: ## Clean out the docker image
-	@docker image rm ghcr.io/nwneisen/dex-http-server:${VERSION}
+	@docker image rm ${IMG}
 
 ##@ Testing
 
