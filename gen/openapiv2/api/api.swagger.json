@@ -1,0 +1,433 @@
+  {
+  "swagger": "2.0",
+  "info": {
+    "title": "api/api.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "Dex"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/users": {
+      "get": {
+        "summary": "ListPassword lists all password entries.",
+        "operationId": "Dex_ListPasswords",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiListPasswordResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Dex"
+        ]
+      },
+      "post": {
+        "summary": "CreatePassword creates a password.",
+        "operationId": "Dex_CreatePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiCreatePasswordResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "CreatePasswordReq is a request to make a password.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiCreatePasswordReq"
+            }
+          }
+        ],
+        "tags": [
+          "Dex"
+        ]
+      }
+    },
+    "/v1/users/verify": {
+      "post": {
+        "summary": "VerifyPassword returns whether a password matches a hash for a specific email or not.",
+        "operationId": "Dex_VerifyPassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiVerifyPasswordResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiVerifyPasswordReq"
+            }
+          }
+        ],
+        "tags": [
+          "Dex"
+        ]
+      }
+    },
+    "/v1/users/{email}": {
+      "delete": {
+        "summary": "DeletePassword deletes the password.",
+        "operationId": "Dex_DeletePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiDeletePasswordResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Dex"
+        ]
+      },
+      "put": {
+        "summary": "UpdatePassword modifies existing password.",
+        "operationId": "Dex_UpdatePassword",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/apiUpdatePasswordResp"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "email",
+            "description": "The email used to lookup the password. This field cannot be modified",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DexUpdatePasswordBody"
+            }
+          }
+        ],
+        "tags": [
+          "Dex"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "DexUpdatePasswordBody": {
+      "type": "object",
+      "properties": {
+        "newHash": {
+          "type": "string",
+          "format": "byte"
+        },
+        "newUsername": {
+          "type": "string"
+        }
+      },
+      "description": "UpdatePasswordReq is a request to modify an existing password."
+    },
+    "apiClient": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "secret": {
+          "type": "string"
+        },
+        "redirectUris": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "trustedPeers": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "public": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "logoUrl": {
+          "type": "string"
+        }
+      },
+      "description": "Client represents an OAuth2 client."
+    },
+    "apiCreateClientResp": {
+      "type": "object",
+      "properties": {
+        "alreadyExists": {
+          "type": "boolean"
+        },
+        "client": {
+          "$ref": "#/definitions/apiClient"
+        }
+      },
+      "description": "CreateClientResp returns the response from creating a client."
+    },
+    "apiCreatePasswordReq": {
+      "type": "object",
+      "properties": {
+        "password": {
+          "$ref": "#/definitions/apiPassword"
+        }
+      },
+      "description": "CreatePasswordReq is a request to make a password."
+    },
+    "apiCreatePasswordResp": {
+      "type": "object",
+      "properties": {
+        "alreadyExists": {
+          "type": "boolean"
+        }
+      },
+      "description": "CreatePasswordResp returns the response from creating a password."
+    },
+    "apiDeleteClientResp": {
+      "type": "object",
+      "properties": {
+        "notFound": {
+          "type": "boolean"
+        }
+      },
+      "description": "DeleteClientResp determines if the client is deleted successfully."
+    },
+    "apiDeletePasswordResp": {
+      "type": "object",
+      "properties": {
+        "notFound": {
+          "type": "boolean"
+        }
+      },
+      "description": "DeletePasswordResp returns the response from deleting a password."
+    },
+    "apiListPasswordResp": {
+      "type": "object",
+      "properties": {
+        "passwords": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiPassword"
+          }
+        }
+      },
+      "description": "ListPasswordResp returns a list of passwords."
+    },
+    "apiListRefreshResp": {
+      "type": "object",
+      "properties": {
+        "refreshTokens": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/apiRefreshTokenRef"
+          }
+        }
+      },
+      "description": "ListRefreshResp returns a list of refresh tokens for a user."
+    },
+    "apiPassword": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "hash": {
+          "type": "string",
+          "format": "byte",
+          "description": "Currently we do not accept plain text passwords. Could be an option in the future."
+        },
+        "username": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        }
+      },
+      "description": "Password is an email for password mapping managed by the storage."
+    },
+    "apiRefreshTokenRef": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "ID of the refresh token."
+        },
+        "clientId": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "int64"
+        },
+        "lastUsed": {
+          "type": "string",
+          "format": "int64"
+        }
+      },
+      "description": "RefreshTokenRef contains the metadata for a refresh token that is managed by the storage."
+    },
+    "apiRevokeRefreshResp": {
+      "type": "object",
+      "properties": {
+        "notFound": {
+          "type": "boolean",
+          "description": "Set to true is refresh token was not found and token could not be revoked."
+        }
+      },
+      "description": "RevokeRefreshResp determines if the refresh token is revoked successfully."
+    },
+    "apiUpdateClientResp": {
+      "type": "object",
+      "properties": {
+        "notFound": {
+          "type": "boolean"
+        }
+      },
+      "description": "UpdateClientResp returns the response from updating a client."
+    },
+    "apiUpdatePasswordResp": {
+      "type": "object",
+      "properties": {
+        "notFound": {
+          "type": "boolean"
+        }
+      },
+      "description": "UpdatePasswordResp returns the response from modifying an existing password."
+    },
+    "apiVerifyPasswordReq": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "apiVerifyPasswordResp": {
+      "type": "object",
+      "properties": {
+        "verified": {
+          "type": "boolean"
+        },
+        "notFound": {
+          "type": "boolean"
+        }
+      }
+    },
+    "apiVersionResp": {
+      "type": "object",
+      "properties": {
+        "server": {
+          "type": "string",
+          "description": "Semantic version of the server."
+        },
+        "api": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Numeric version of the API. It increases every time a new call is added to the API.\nClients should use this info to determine if the server supports specific features."
+        }
+      },
+      "description": "VersionResp holds the version info of components."
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
