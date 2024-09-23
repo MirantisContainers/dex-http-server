@@ -35,7 +35,7 @@ func request_Dex_CreatePassword_0(ctx context.Context, marshaler runtime.Marshal
 	var protoReq CreatePasswordReq
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Password); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -48,7 +48,7 @@ func local_request_Dex_CreatePassword_0(ctx context.Context, marshaler runtime.M
 	var protoReq CreatePasswordReq
 	var metadata runtime.ServerMetadata
 
-	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq); err != nil && err != io.EOF {
+	if err := marshaler.NewDecoder(req.Body).Decode(&protoReq.Password); err != nil && err != io.EOF {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
@@ -316,7 +316,7 @@ func RegisterDexHandlerServer(ctx context.Context, mux *runtime.ServeMux, server
 			return
 		}
 
-		forward_Dex_ListPasswords_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Dex_ListPasswords_0(annotatedContext, mux, outboundMarshaler, w, req, response_Dex_ListPasswords_0{resp.(*ListPasswordResp)}, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -470,7 +470,7 @@ func RegisterDexHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 			return
 		}
 
-		forward_Dex_ListPasswords_0(annotatedContext, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_Dex_ListPasswords_0(annotatedContext, mux, outboundMarshaler, w, req, response_Dex_ListPasswords_0{resp.(*ListPasswordResp)}, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -497,6 +497,14 @@ func RegisterDexHandlerClient(ctx context.Context, mux *runtime.ServeMux, client
 	})
 
 	return nil
+}
+
+type response_Dex_ListPasswords_0 struct {
+	*ListPasswordResp
+}
+
+func (m response_Dex_ListPasswords_0) XXX_ResponseBody() interface{} {
+	return m.Passwords
 }
 
 var (

@@ -6,7 +6,7 @@ http:
   rules:
     - selector: api.Dex.CreatePassword
       post: "/v1/users"
-      body: "*"
+      body: "password"
     - selector: api.Dex.UpdatePassword
       put: "/v1/users/{email}"
       body: "*"
@@ -14,6 +14,7 @@ http:
       delete: "/v1/users/{email}"
     - selector: api.Dex.ListPasswords
       get: "/v1/users"
+      response_body: "passwords"
     - selector: api.Dex.VerifyPassword
       post: "/v1/users/verify"
       body: "*"
