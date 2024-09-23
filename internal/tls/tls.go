@@ -7,6 +7,8 @@ import (
 	"io"
 	"os"
 	"path"
+
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -17,6 +19,7 @@ const (
 
 // LoadTLSConfig loads the TLS configuration from the provided directory
 func LoadTLSConfig(certDir string) (*tls.Config, error) {
+	log.Info().Msgf("Loading TLS configuration from %s", certDir)
 	ca, err := readFile(path.Join(certDir, caCertFile))
 	cert, err := readFile(path.Join(certDir, certFile))
 	key, err := readFile(path.Join(certDir, keyFile))
@@ -40,6 +43,7 @@ func LoadTLSConfig(certDir string) (*tls.Config, error) {
 }
 
 func readFile(path string) ([]byte, error) {
+	log.Debug().Msgf("Reading file %s", path)
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file %s: %w", path, err)

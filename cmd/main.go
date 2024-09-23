@@ -38,6 +38,7 @@ func run() error {
 
 	var err error
 	var creds credentials.TransportCredentials
+
 	// Load the cert from the file, if provided
 	if *certsPath != "" {
 		log.Info().Msgf("Using cert for grpc connect from %s", *certsPath)
