@@ -1,4 +1,4 @@
-package roles_test
+package k8s_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes/fake"
 
-	"github.com/mirantiscontainers/dex-http-server/internal/roles"
+	"github.com/mirantiscontainers/dex-http-server/internal/k8s"
 )
 
 func TestGetClusterRoles(t *testing.T) {
@@ -109,7 +109,7 @@ func TestGetClusterRoles(t *testing.T) {
 				Items: tt.clusterRoleBindings,
 			})
 
-			roles, err := roles.GetClusterRoles(context.TODO(), clientset, tt.serviceAccountName)
+			roles, err := k8s.GetClusterRoles(context.TODO(), clientset, tt.serviceAccountName)
 			if tt.expectError {
 				assert.Error(t, err)
 			} else {

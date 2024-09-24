@@ -56,8 +56,11 @@ func run() error {
 		creds = insecure.NewCredentials()
 	}
 
+	// Create a gRPC server mux with the custom middlewares
+	mws := middlewares.GetMiddlewares(*disableAuth)
+	mux := runtime.NewServeMux(runtime.WithMiddlewares(mws...))
+
 	// Register gRPC server endpoint
-	mux := runtime.NewServeMux()
 	opts := []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 	if err = api.RegisterDexHandlerFromEndpoint(ctx, mux, *grpcServerEndpoint, opts); err != nil {
 		return err
@@ -66,9 +69,8 @@ func run() error {
 
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", *port),
-		Handler: middlewares.ApplyMiddlewares(mux.ServeHTTP, *disableAuth),
+		Handler: mux,
 	}
-
 	// Start HTTP server (and proxy calls to gRPC server endpoint)
 	log.Info().Msgf("Running HTTP server on %s", *port)
 	return s.ListenAndServe()
@@ -80,7 +82,6 @@ func getDexGrpcCredentials(tlsDir string) (credentials.TransportCredentials, err
 		return nil, fmt.Errorf("failed to load TLS config: %w", err)
 	}
 	return credentials.NewTLS(tlsConfig), nil
-
 }
 
 func main() {

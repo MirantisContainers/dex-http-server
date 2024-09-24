@@ -3,50 +3,51 @@ package middlewares
 import (
 	"net/http"
 
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 )
 
 // Middleware is a function that wraps an http.HandlerFunc
-type Middleware func(http.HandlerFunc) http.HandlerFunc
+//type Middleware func(http.HandlerFunc) http.HandlerFunc
 
-// ApplyMiddlewares chains all middleware functions to a single handler
-func ApplyMiddlewares(h http.HandlerFunc, authDisabled bool) http.HandlerFunc {
-	middlewares := []Middleware{
+// GetMiddlewares returns the list of middlewares to be applied to the request
+func GetMiddlewares(authDisabled bool) []runtime.Middleware {
+	mws := []runtime.Middleware{
 		loggingMiddleware,
 	}
 
 	// If authentication is not disabled, add the authentication middleware
 	if !authDisabled {
-		middlewares = append(middlewares, authMiddleware()...)
+		mws = append(mws, authMiddleware()...)
 	}
 
-	return chainMiddleware(h, middlewares...)
+	mws = append(mws, userRequestsMiddleware()...)
+	return mws
+
 }
 
 // loggingMiddleware logs the request method and path
-func loggingMiddleware(h http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
+func loggingMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
 		log.Info().Msgf("%s %s", r.Method, r.URL.Path)
-		h.ServeHTTP(w, r) // call ServeHTTP on the original handler
+		next(w, r, pathParams)
 	}
 }
 
 // authMiddleware chains the authentication and authorization middleware functions
-func authMiddleware() []Middleware {
+func authMiddleware() []runtime.Middleware {
 	// The list of middleware functions to be applied to the request
 	// Note: The order of the middleware functions is important as it
 	//       defines the order in which they are applied
-	return []Middleware{
-		authenticationMiddleware,
-		authorizationMiddleware,
+	return []runtime.Middleware{
+		authenticationMiddleware(),
+		authorizationMiddleware(),
 	}
 }
 
-// chainMiddleware chains multiple middleware functions to a single handler
-func chainMiddleware(handler http.HandlerFunc, middlewares ...Middleware) http.HandlerFunc {
-	// loop in reverse to preserve middleware order
-	for i := len(middlewares) - 1; i >= 0; i-- {
-		handler = middlewares[i](handler)
+func userRequestsMiddleware() []runtime.Middleware {
+	return []runtime.Middleware{
+		createUserMiddleware,
+		updateUserMiddleware,
 	}
-	return handler
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/coreos/go-oidc"
+	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,32 +32,35 @@ var idTokenVerifier *oidc.IDTokenVerifier
 // authenticationMiddleware is a middleware that authenticates requests using a bearer token.
 // It extracts the token from the Authorization header and verifies it using the ID token verifier.
 // If the token is valid, it extracts the user information from the claims and adds it to the request context.
-func authenticationMiddleware(h http.HandlerFunc) http.HandlerFunc {
+func authenticationMiddleware() runtime.Middleware {
+
 	log.Info().Msg("Initializing ID token verifier")
 	idTokenVerifier = oidc.NewVerifier(dexIssuerURL, oidc.NewRemoteKeySet(context.Background(), dexKeysURL), &oidc.Config{ClientID: dexClientName, SkipIssuerCheck: true})
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		log.Debug().Msg("Authenticating request using bearer token")
-		token, err := getBearerToken(r)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to get authentication token")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
+	return func(next runtime.HandlerFunc) runtime.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request, pathParams map[string]string) {
+			log.Debug().Msg("Authenticating request using bearer token")
+			token, err := getBearerToken(r)
+			if err != nil {
+				log.Error().Err(err).Msg("failed to get authentication token")
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			u, err := authenticate(r.Context(), token)
+			if err != nil {
+				log.Error().Err(err).Msg("failed to authenticate user")
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+
+			log.Debug().Msg("Authenticated user: " + u.email)
+
+			// Attach user information to the request context for next middlewares to use
+			ctx := context.WithValue(r.Context(), userInfoCtxKey, u)
+
+			next(w, r.WithContext(ctx), pathParams)
 		}
-
-		u, err := authenticate(r.Context(), token)
-		if err != nil {
-			log.Error().Err(err).Msg("failed to authenticate user")
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
-
-		log.Debug().Msg("Authenticated user: " + u.email)
-
-		// Attach user information to the request context for next middlewares to use
-		ctx := context.WithValue(r.Context(), userInfoCtxKey, u)
-
-		h.ServeHTTP(w, r.WithContext(ctx))
 	}
 }
 
