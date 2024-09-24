@@ -42,7 +42,7 @@ func authorizationMiddleware(h http.HandlerFunc) http.HandlerFunc {
 		u := r.Context().Value(userInfoCtxKey)
 		if u == nil {
 			log.Error().Err(fmt.Errorf("failed to get user info from context"))
-			http.Error(w, "Forbidden", http.StatusForbidden)
+			http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 			return
 		}
 
