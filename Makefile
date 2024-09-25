@@ -83,14 +83,12 @@ static: ## Run staticcheck against code.
 	@staticcheck -checks "all" ${MAIN}
 
 ##@ Dependencies
+.PHONY: download
+download:
+	@echo "Download go.mod dependencies"
+	@go mod download
 
-.PHONY: deps
-deps: staticcheck ## Install all of hte needed dependencies
-
-.PHONY: ginkgo
-ginkgo: ## Install staticcheck - doesn't work
-	@go install github.com/onsi/ginkgo/v2/ginkgo
-
-.PHONY: staticcheck
-staticcheck: ## Install staticcheck
-	@go install honnef.co/go/tools/cmd/staticcheck@latest
+.PHONY: install-tools
+install-tools: download
+	@echo "Install tools from tools/tools.go"
+	@cat tools/tools.go | grep _ | awk -F'"' '{print $$2}' | xargs -tI % go install %

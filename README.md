@@ -42,18 +42,18 @@ can be found in the `api/api.pb.gq.go` file.
 
 ## Automation Notes
 
-1. Install the deps
+### 1. Install the deps
 
-protobuf compiler
+**tools**
+
+The project use [tool dependency](https://go.dev/wiki/Modules#how-can-i-track-tool-dependencies-for-a-module) to track the versions of the dependencies in [tools/tools.go](tools/tools.go). 
+To install the dependencies, run the following command:
 
 ```bash
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.22.0
-go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.22.0
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.2
+make install-tools
 ```
 
-buf cli
+**buf cli**
 
 ```bash
 curl https://github.com/bufbuild/buf/releases/download/v1.35.1/buf-Linux-x86_64 -o buf
@@ -61,13 +61,13 @@ chmod +x buf
 sudo mv buf /usr/local/bin
 ```
 
-2. Generate the code
+### 2. Generate the code
 
 ```bash
 buf generate
 ```
 
-3. Run the server
+### 3. Run the server
 
 ```bash
 go run cmd/dex-http-server/main.go
