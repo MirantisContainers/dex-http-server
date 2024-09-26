@@ -35,7 +35,9 @@ metadata:
 spec:
   ports:
     - port: 80
-      targetPort: 8080
+      targetPort: http
+      protocol: TCP
+      name: http
   selector:
     app: dex-http-server
 ---
@@ -57,10 +59,10 @@ spec:
                 port:
                   number: 80
             path: /api/dex(/|$)(.*)
-            pathType: Prefix
+            pathType: ImplementationSpecific
   tls:
     - hosts:
-        - example.com
+        - l63pjn-mke4-lb-27f36ee8e351c0a1.elb.us-west-1.amazonaws.com
       secretName: auth-https.tls
 ---
 apiVersion: apps/v1
@@ -89,7 +91,9 @@ spec:
             - --grpc-certs-path=/etc/dex-grpc-certs
           imagePullPolicy: Always
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+              protocol: TCP
           volumeMounts:
             - name: dex-grpc-certs
               mountPath: /etc/dex-grpc-certs
@@ -106,23 +110,3 @@ spec:
         - name: dex-grpc-certs
           secret:
             secretName: auth-grpc.tls
----
-apiVersion: v1
-kind: Pod
-metadata:
-  name: shell-demo
-  namespace: mke
-spec:
-  volumes:
-    - name: dex-grpc-certs
-      secret:
-        secretName: auth-grpc.tls
-  containers:
-    - name: nginx
-      image: nginx
-      volumeMounts:
-        - name: dex-grpc-certs
-          mountPath: /etc/dex-grpc-certs
-          readOnly: true
-  hostNetwork: true
-  dnsPolicy: Default

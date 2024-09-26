@@ -1,0 +1,94 @@
+# Default values for dex-http-server.
+
+
+# Default values for dex-http-server.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This will set the replicaset count more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/
+replicaCount: 1
+
+image:
+  repository: ghcr.io/mirantiscontainers/dex-http-server
+  pullPolicy: IfNotPresent
+  tag: "v0.5.0"
+
+grpc:
+  server: dex:5557
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: "dex-http-server"
+fullnameOverride: "dex-http-server"
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+rbac:
+  create: true
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  seccompProfile:
+   type: RuntimeDefault
+  capabilities:
+    drop:
+     - ALL
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+  hosts:
+    - paths:
+        - path: /api/dex(/|$)(.*)
+          pathType: ImplementationSpecific
+  tls:
+    - secretName: auth-https.tls
+      hosts:
+        - example.com
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+#   memory: 128Mi
+
+volumes:
+  - name: dex-grpc-certs
+    secret:
+      secretName: auth-grpc.tls
+volumeMounts:
+  - name: dex-grpc-certs
+    mountPath: /etc/dex-grpc-certs
+    readOnly: true
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
