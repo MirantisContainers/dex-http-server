@@ -1,16 +1,14 @@
 MAIN:=cmd/main.go
 
 # LDFLAGS
-VERSION:=dev
+VERSION:=
 #VERSION := $(shell git tag --sort=committerdate | tail -1)
 COMMIT := $(shell git rev-parse HEAD)
 DATE := $(shell date -u '+%Y-%m-%d')
-LDFLAGS=-ldflags \
-				" \
-				-X github.com/MirantisContainers/dex-http-server/cmd/main.version=${VERSION} \
-				-X github.com/MirantisContainers/dex-http-server/cmd/main.commit=${COMMIT} \
-				-X github.com/MirantisContainers/dex-http-server/cmd/main.date=${DATE} \
-				"
+
+LDFLAGS := "-X 'main.version=${VERSION}' \
+			-X 'main.commit=${COMMIT}' \
+			-X 'main.date=${DATE}'"
 IMAGE_REPO ?= ghcr.io/mirantiscontainers
 IMAGE_TAG_BASE ?= $(IMAGE_REPO)/dex-http-server
 IMG ?= $(IMAGE_TAG_BASE):$(VERSION)
@@ -30,11 +28,11 @@ print-%:
 
 .PHONY: build
 build: ## Build the binary
-	@go build ${LDFLAGS} -o bin/dex-http-server ${MAIN}
+	go build -ldflags=${LDFLAGS} -o bin/dex-http-server ${MAIN}
 
 .PHONY: run
 run: ## Run the binary
-	@go run ${LDFLAGS} ${MAIN}
+	@go run -ldflags=${LDFLAGS} ${MAIN}
 
 .PHONY: clean
 clean: ## Clean out the binary
@@ -48,7 +46,7 @@ up: ## Run the project in docker containers
 
 .PHONY: docker-build
 docker-build: ## Build the docker image
-	@docker build -t ${IMG} .
+	docker build --build-arg LDFLAGS=$(LDFLAGS) -t ${IMG} .
 
 PLATFORMS ?= linux/arm64,linux/amd64
 .PHONY: docker-buildx
@@ -57,7 +55,7 @@ docker-buildx: ## Build and push docker image for the manager for cross-platform
 	sed -e '1 s/\(^FROM\)/FROM --platform=\$$\{BUILDPLATFORM\}/; t' -e ' 1,// s//FROM --platform=\$$\{BUILDPLATFORM\}/' Dockerfile > Dockerfile.cross
 	- docker buildx create --name project-v3-builder
 	docker buildx use project-v3-builder
-	- docker buildx build --push --platform=$(PLATFORMS) --tag ${IMG} -f Dockerfile.cross .
+	- docker buildx build --push --platform=$(PLATFORMS) --build-arg LDFLAGS=$(LDFLAGS) --tag ${IMG} -f Dockerfile.cross .
 	- docker buildx rm project-v3-builder
 	rm Dockerfile.cross
 
