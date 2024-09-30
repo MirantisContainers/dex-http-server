@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"fmt"
 	"net/http"
@@ -164,10 +163,4 @@ func Test_encryptPassword(t *testing.T) {
 	if err := bcrypt.CompareHashAndPassword([]byte(encrypted), password); err != nil {
 		t.Errorf("bcrypt.CompareHashAndPassword() error = %v", err)
 	}
-}
-
-type httpPatternKey struct{}
-
-func withHTTPPattern(ctx context.Context, httpPattern runtime.Pattern) context.Context {
-	return context.WithValue(ctx, httpPatternKey{}, httpPattern)
 }
