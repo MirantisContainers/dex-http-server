@@ -15,7 +15,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   push-to-ghcr:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} # if all `needs` jobs are successful
-    needs: [build]
+    needs: [vet, unit-test, build]
     secrets: inherit
     uses: ./.github/workflows/push-to-ghcr.yml
   cleanup:

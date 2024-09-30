@@ -28,6 +28,10 @@ print-%:
 
 ##@ Development
 
+.PHONY: buf
+buf: ## Run buf lint and breaking change checks
+	@buf generate
+
 .PHONY: build
 build: ## Build the binary
 	@go build ${LDFLAGS} -o bin/dex-http-server ${MAIN}
@@ -66,7 +70,6 @@ docker-clean: ## Clean out the docker image
 	@docker image rm ${IMG}
 
 ##@ Testing
-
 .PHONY: test
 test: fmt vet ## Run all tests
 	@go test -v ./...
