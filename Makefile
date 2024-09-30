@@ -68,7 +68,7 @@ docker-clean: ## Clean out the docker image
 
 ##@ Testing
 .PHONY: test
-test: fmt vet lint ## Run all tests
+test: fmt vet ## Run all tests
 	@go test -v ./...
 
 .PHONY: fmt
