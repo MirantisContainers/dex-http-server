@@ -1,10 +1,9 @@
 MAIN:=cmd/main.go
 
 # LDFLAGS
-VERSION:=
-#VERSION := $(shell git tag --sort=committerdate | tail -1)
-COMMIT := $(shell git rev-parse HEAD)
-DATE := $(shell date -u '+%Y-%m-%d')
+VERSION ?= dev
+COMMIT ?= $(shell git rev-parse HEAD)
+DATE ?= $(shell date -u '+%Y-%m-%d')
 
 LDFLAGS := "-X 'main.version=${VERSION}' \
 			-X 'main.commit=${COMMIT}' \
