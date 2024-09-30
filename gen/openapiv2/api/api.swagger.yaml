@@ -1,9 +1,12 @@
 swagger: "2.0"
 info:
-  title: api.proto
-  version: version not set
+  title: Dex HTTP API
+  version: "1.0"
 tags:
   - name: Dex
+    description: Dex HTTP API to manage users
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -21,6 +24,12 @@ paths:
             items:
               type: object
               $ref: '#/definitions/apiPassword'
+        "401":
+          description: Returned when the user does not provide authentication using Bearer token.
+          schema: {}
+        "403":
+          description: Returned when the user does not have permission to access the resource.
+          schema: {}
         default:
           description: An unexpected error response.
           schema:
@@ -35,6 +44,12 @@ paths:
           description: A successful response.
           schema:
             $ref: '#/definitions/apiCreatePasswordResp'
+        "401":
+          description: Returned when the user does not provide authentication using Bearer token.
+          schema: {}
+        "403":
+          description: Returned when the user does not have permission to access the resource.
+          schema: {}
         default:
           description: An unexpected error response.
           schema:
@@ -56,6 +71,12 @@ paths:
           description: A successful response.
           schema:
             $ref: '#/definitions/apiVerifyPasswordResp'
+        "401":
+          description: Returned when the user does not provide authentication using Bearer token.
+          schema: {}
+        "403":
+          description: Returned when the user does not have permission to access the resource.
+          schema: {}
         default:
           description: An unexpected error response.
           schema:
@@ -77,6 +98,12 @@ paths:
           description: A successful response.
           schema:
             $ref: '#/definitions/apiDeletePasswordResp'
+        "401":
+          description: Returned when the user does not provide authentication using Bearer token.
+          schema: {}
+        "403":
+          description: Returned when the user does not have permission to access the resource.
+          schema: {}
         default:
           description: An unexpected error response.
           schema:
@@ -96,6 +123,12 @@ paths:
           description: A successful response.
           schema:
             $ref: '#/definitions/apiUpdatePasswordResp'
+        "401":
+          description: Returned when the user does not provide authentication using Bearer token.
+          schema: {}
+        "403":
+          description: Returned when the user does not have permission to access the resource.
+          schema: {}
         default:
           description: An unexpected error response.
           schema:
@@ -283,3 +316,10 @@ definitions:
         items:
           type: object
           $ref: '#/definitions/protobufAny'
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+security:
+  - ApiKeyAuth: []

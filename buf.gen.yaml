@@ -18,5 +18,6 @@ plugins:
       - output_format=yaml
       - generate_unbound_methods=false
       - grpc_api_configuration=api/mapping.yaml
+      - openapi_configuration=api/swagger.yaml
 inputs:
   - directory: api/
