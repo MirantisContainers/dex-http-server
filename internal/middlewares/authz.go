@@ -41,7 +41,7 @@ func authorizationMiddleware() runtime.Middleware {
 			log.Debug().Msg("Authorizing request")
 
 			// get user info from the context
-			u := r.Context().Value(userInfoCtxKey)
+			u := r.Context().Value(userInfoKey{})
 			if u == nil {
 				log.Error().Err(fmt.Errorf("failed to get user info from context"))
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)

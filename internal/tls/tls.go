@@ -21,8 +21,17 @@ const (
 func LoadTLSConfig(certDir string) (*tls.Config, error) {
 	log.Info().Msgf("Loading TLS configuration from %s", certDir)
 	ca, err := readFile(path.Join(certDir, caCertFile))
+	if err != nil {
+		return nil, fmt.Errorf("unable to read CA crt from file %s: %w", path.Join(certDir, caCertFile), err)
+	}
 	cert, err := readFile(path.Join(certDir, certFile))
+	if err != nil {
+		return nil, fmt.Errorf("unable to read client crt from file %s: %w", path.Join(certDir, certFile), err)
+	}
 	key, err := readFile(path.Join(certDir, keyFile))
+	if err != nil {
+		return nil, fmt.Errorf("unable to read client key from file %s: %w", path.Join(certDir, keyFile), err)
+	}
 
 	cPool := x509.NewCertPool()
 	if !cPool.AppendCertsFromPEM(ca) {

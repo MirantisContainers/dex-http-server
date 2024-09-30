@@ -16,10 +16,11 @@ const (
 	dexKeysURL   = "http://authentication-dex:5556/dex/keys"
 
 	dexClientName = "mke-dashboard"
-
-	// userInfoCtxKey is the key used to store the user information in the request context.
-	userInfoCtxKey = "userInfoKey"
 )
+
+// userInfoCtxKey is the key used to store the user information in the request context.
+
+type userInfoKey struct{}
 
 // user contains the user information extracted from the ID token claims.
 type user struct {
@@ -57,7 +58,7 @@ func authenticationMiddleware() runtime.Middleware {
 			log.Debug().Msg("Authenticated user: " + u.email)
 
 			// Attach user information to the request context for next middlewares to use
-			ctx := context.WithValue(r.Context(), userInfoCtxKey, u)
+			ctx := context.WithValue(r.Context(), userInfoKey{}, u)
 
 			next(w, r.WithContext(ctx), pathParams)
 		}
