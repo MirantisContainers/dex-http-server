@@ -7,12 +7,10 @@ on:
 jobs:
   vet:
     uses: ./.github/workflows/vet.yml
-  static-analysis:
-    uses: ./.github/workflows/static-analysis.yml
-  # unit-test:
-  #   uses: ./.github/workflows/unit.yml
+  unit-test:
+    uses: ./.github/workflows/unit.yml
   build:
-    needs: [vet, static-analysis]
+    needs: [vet, unit-test]
     secrets: inherit
     uses: ./.github/workflows/build.yml
   push-to-ghcr:

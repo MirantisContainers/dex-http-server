@@ -22,11 +22,6 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - name: Install ginkgo
-        working-directory: .
-        run: |
-          go install github.com/onsi/ginkgo/v2/ginkgo
-
       - name: Run Unit Tests
         working-directory: .
-        run: make unit
+        run: make test

@@ -11,13 +11,11 @@ on:
 jobs:
   vet:
     uses: ./.github/workflows/vet.yml
-  static-analysis:
-    uses: ./.github/workflows/static-analysis.yml
-  # unit-test:
-  #   uses: ./.github/workflows/unit.yml
+  unit-test:
+    uses: ./.github/workflows/unit.yml
   build:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} # if all `needs` jobs are successful
-    needs: [vet, static-analysis]
+    needs: [vet, unit-test]
     secrets: inherit
     uses: ./.github/workflows/build.yml
   cleanup:

@@ -1,6 +1,6 @@
 module github.com/mirantiscontainers/dex-http-server
 
-go 1.22.4
+go 1.23.1
 
 require (
 	github.com/coreos/go-oidc v2.2.1+incompatible

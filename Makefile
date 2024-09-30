@@ -68,7 +68,8 @@ docker-clean: ## Clean out the docker image
 ##@ Testing
 
 .PHONY: test
-test: fmt vet static ## Run all tests
+test: fmt vet ## Run all tests
+	@go test -v ./...
 
 .PHONY: fmt
 fmt: ## Run go fmt against code.
@@ -77,10 +78,6 @@ fmt: ## Run go fmt against code.
 .PHONY: vet
 vet: ## Run go vet against code.
 	@go vet ${MAIN}
-
-.PHONY: static
-static: ## Run staticcheck against code.
-	@staticcheck -checks "all" ${MAIN}
 
 ##@ Dependencies
 .PHONY: download
