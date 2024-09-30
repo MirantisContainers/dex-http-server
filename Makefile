@@ -28,7 +28,7 @@ print-%:
 
 .PHONY: buf
 buf: ## Run buf lint and breaking change checks
-	@buf generate
+	@go run github.com/bufbuild/buf/cmd/buf@v1.43.0 generate
 
 .PHONY: build
 build: ## Build the binary
@@ -89,6 +89,8 @@ lint: ## Run golangci-lint against code.
 download:
 	@echo "Download go.mod dependencies"
 	@go mod download
+
+
 
 .PHONY: install-tools
 install-tools: download

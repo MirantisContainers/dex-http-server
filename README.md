@@ -56,7 +56,7 @@ make install-tools
 **buf cli**
 
 ```bash
-curl https://github.com/bufbuild/buf/releases/download/v1.35.1/buf-Linux-x86_64 -o buf
+curl https://github.com/bufbuild/buf/releases/download/v1.43.0/buf-Linux-x86_64 -o buf
 chmod +x buf
 sudo mv buf /usr/local/bin
 ```
