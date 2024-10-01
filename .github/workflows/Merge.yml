@@ -20,6 +20,6 @@ jobs:
     uses: ./.github/workflows/push-to-ghcr.yml
   cleanup:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} # if all `needs` jobs are successful
-    needs: [build]
+    needs: [push-to-ghcr]
     secrets: inherit
     uses: ./.github/workflows/cleanup.yml
