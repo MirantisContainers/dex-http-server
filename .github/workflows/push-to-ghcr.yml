@@ -7,6 +7,9 @@ jobs:
   push-latest:
     if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +47,9 @@ jobs:
   push-semver:
     if: ${{ github.event_name == 'release' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -83,6 +89,9 @@ jobs:
   push-sha:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -122,6 +131,9 @@ jobs:
   push-dev:
     if: ${{ github.event_name == 'push' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -157,6 +169,7 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.ORG }}/${{ env.IMAGE }}:dev
 
   push-helm-chart:
+    if: ${{ github.event_name == 'release' }}
     name: Push Helm chart
     uses: ./.github/workflows/publish-helm-chart.yaml
     secrets: inherit

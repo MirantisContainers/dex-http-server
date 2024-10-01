@@ -8,6 +8,9 @@ jobs:
   push-helm-chart:
     name: Push helm chart to ghcr.io
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: Checkout
