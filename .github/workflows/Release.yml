@@ -18,8 +18,14 @@ jobs:
     needs: [build]
     secrets: inherit
     uses: ./.github/workflows/push-to-ghcr.yml
+  push-helm-chart:
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} # if all `needs` jobs are successful
+    name: Push Helm chart
+    needs: [push-to-ghcr]
+    uses: ./.github/workflows/publish-helm-chart.yaml
+    secrets: inherit
   cleanup:
     if: ${{ always() && contains(join(needs.*.result, ','), 'success') }} # if all `needs` jobs are successful
-    needs: [push-to-ghcr]
+    needs: [push-helm-chart]
     secrets: inherit
     uses: ./.github/workflows/cleanup.yml
