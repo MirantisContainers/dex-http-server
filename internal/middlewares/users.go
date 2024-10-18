@@ -107,8 +107,6 @@ func updateUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 		}
 
 		if isUpdateUserRequest(r.Method, pattern) {
-			log.Debug().Msg("update password request, will modify request body to encrypt password")
-
 			// decode request body
 			var req api.UpdatePasswordReq
 			if err = marshaler.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -116,25 +114,29 @@ func updateUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 				return
 			}
 
-			// replace password with base64 of bcrypt hash
-			plaintext := req.NewHash
-			encryptedHash, err := encryptPasswordHash(plaintext)
-			if err != nil {
-				log.Err(err).Msg("failed to encrypt password")
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
+			if len(req.NewHash) > 0 {
+				log.Debug().Msg("update password request, will modify request body to encrypt password")
 
-			req.NewHash = []byte(encryptedHash)
+				// replace password with base64 of bcrypt hash
+				plaintext := req.NewHash
+				encryptedHash, err := encryptPasswordHash(plaintext)
+				if err != nil {
+					log.Err(err).Msg("failed to encrypt password")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
 
-			// update request body
-			newUpdatePasswordReq, err := marshaler.Marshal(&req)
-			if err != nil {
-				log.Err(err).Msg("failed to marshal request after encrypting password")
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
+				req.NewHash = []byte(encryptedHash)
+
+				// update request body
+				newUpdatePasswordReq, err := marshaler.Marshal(&req)
+				if err != nil {
+					log.Err(err).Msg("failed to marshal request after encrypting password")
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+					return
+				}
+				r.Body = io.NopCloser(bytes.NewReader(newUpdatePasswordReq))
 			}
-			r.Body = io.NopCloser(bytes.NewReader(newUpdatePasswordReq))
 		}
 
 		next(w, r, pathParams)
