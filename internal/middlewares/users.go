@@ -113,6 +113,7 @@ func updateUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			_ = r.Body.Close()
 
 			if len(req.NewHash) > 0 {
 				log.Debug().Msg("update password request, will modify request body to encrypt password")
@@ -127,16 +128,16 @@ func updateUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 				}
 
 				req.NewHash = []byte(encryptedHash)
-
-				// update request body
-				newUpdatePasswordReq, err := marshaler.Marshal(&req)
-				if err != nil {
-					log.Err(err).Msg("failed to marshal request after encrypting password")
-					http.Error(w, err.Error(), http.StatusInternalServerError)
-					return
-				}
-				r.Body = io.NopCloser(bytes.NewReader(newUpdatePasswordReq))
 			}
+
+			// add back the request body
+			newUpdatePasswordReq, err := marshaler.Marshal(&req)
+			if err != nil {
+				log.Err(err).Msg("failed to marshal request after encrypting password")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			r.Body = io.NopCloser(bytes.NewReader(newUpdatePasswordReq))
 		}
 
 		next(w, r, pathParams)
