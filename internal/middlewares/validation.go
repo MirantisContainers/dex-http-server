@@ -62,7 +62,6 @@ func validateUserRequest(userPassword *api.Password) error {
 	}
 
 	return nil
-
 }
 
 func validateLength(s string, min, max int) error {
