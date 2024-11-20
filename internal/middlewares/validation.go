@@ -85,7 +85,7 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 	}
 
 	newUsername := strings.TrimSpace(req.NewUsername)
-	newHash := strings.TrimSpace(string(req.NewHash))
+	newHash := string(req.NewHash)
 
 	// only username when it is provided as it is optional
 	if len(newUsername) > 0 {
@@ -148,6 +148,11 @@ func validateEmail(email string) error {
 }
 
 func validatePassword(password string) error {
+	// allow no white spaces in the password
+	if strings.Contains(password, " ") {
+		return fmt.Errorf("password cannot contain white spaces")
+	}
+
 	if err := validateLength(password, passwordMinLen, passwordMaxLen); err != nil {
 		return fmt.Errorf("failed to validate password, %v", err.Error())
 	}

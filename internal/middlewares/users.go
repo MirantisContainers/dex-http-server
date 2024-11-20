@@ -49,8 +49,8 @@ func createUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 			_ = r.Body.Close()
 
 			// replace password with bcrypt hash
-			plaintext := strings.TrimSpace(string(req.Password.Hash))
-			encrypted, err := encryptPasswordHash([]byte(plaintext))
+			plaintext := req.Password.Hash
+			encrypted, err := encryptPasswordHash(plaintext)
 			if err != nil {
 				log.Err(err).Msg("failed to encrypt password")
 				http.Error(w, err.Error(), http.StatusInternalServerError)

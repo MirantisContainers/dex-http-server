@@ -161,6 +161,15 @@ var passwordTests = []createUserValidationTest{
 		expectedStatus: http.StatusBadRequest,
 	},
 	{
+		name: "invalid create user request - password containing empty spaces",
+		requestBody: &api.Password{
+			Hash:     []byte("invalid password"),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
 		name: "invalid create user request - too long password",
 		requestBody: &api.Password{
 			Hash:     []byte(strings.Repeat("a", passwordMaxLen+1)),
