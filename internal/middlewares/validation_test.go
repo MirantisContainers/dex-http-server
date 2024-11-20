@@ -15,7 +15,10 @@ import (
 )
 
 func Test_validationMiddlewareCreateUser(t *testing.T) {
-	tests := getTests()
+	var tests []createUserValidationTest
+	tests = append(tests, passwordTests...)
+	tests = append(tests, usernameTests...)
+	tests = append(tests, emailTests...)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -42,6 +45,7 @@ func Test_validationMiddlewareCreateUser(t *testing.T) {
 			handler := validationMiddleware(mockNext)
 			handler(rr, req, map[string]string{})
 
+			fmt.Println(rr.Body.String())
 			// Check the response status code
 			assert.Equal(t, tt.expectedStatus, rr.Code)
 		})
@@ -49,7 +53,8 @@ func Test_validationMiddlewareCreateUser(t *testing.T) {
 }
 
 func Test_validationMiddlewareUpdateUser(t *testing.T) {
-	tests := getTests()
+	var tests []updateUserValidationTest
+	tests = append(tests, updateUserTests...)
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -82,126 +87,277 @@ func Test_validationMiddlewareUpdateUser(t *testing.T) {
 	}
 }
 
-func getTests() []struct {
+type createUserValidationTest struct {
 	name           string
 	requestBody    *api.Password
 	expectedStatus int
-} {
-	tests := []struct {
-		name           string
-		requestBody    *api.Password
-		expectedStatus int
-	}{
-		{
-			name: "valid create user request",
-			requestBody: &api.Password{
-				Hash:     []byte("validpassword"),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name: "valid create user request - min password length",
-			requestBody: &api.Password{
-				Hash:     []byte(strings.Repeat("a", passwordMinLen)),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name: "valid create user request - max password length",
-			requestBody: &api.Password{
-				Hash:     []byte(strings.Repeat("a", passwordMaxLen)),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusOK,
-		},
-		{
-			name: "invalid create user request - short password",
-			requestBody: &api.Password{
-				Hash:     []byte("short"),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "invalid create user request - short password",
-			requestBody: &api.Password{
-				Hash:     []byte(strings.Repeat("a", passwordMinLen-1)),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "invalid create user request - empty password",
-			requestBody: &api.Password{
-				Hash:     []byte(""),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "invalid create user request - empty spaces password",
-			requestBody: &api.Password{
-				Hash:     []byte("                 "),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
-		{
-			name: "invalid create user request - too long password",
-			requestBody: &api.Password{
-				Hash:     []byte(strings.Repeat("a", passwordMaxLen+1)),
-				Username: "validusername",
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
-		},
+}
 
-		{
-			name: "invalid create user request - short username",
-			requestBody: &api.Password{
-				Hash:     []byte("validpassword"),
-				Username: strings.Repeat("a", minLen-1),
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
+var passwordTests = []createUserValidationTest{
+	{
+		name: "valid create user request",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    "valid@example.com",
 		},
-		{
-			name: "invalid create user request - long username",
-			requestBody: &api.Password{
-				Hash:     []byte("validpassword"),
-				Username: strings.Repeat("a", maxLen+1),
-				Email:    "valid@example.com",
-			},
-			expectedStatus: http.StatusBadRequest,
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - min password length",
+		requestBody: &api.Password{
+			Hash:     []byte(strings.Repeat("a", passwordMinLen)),
+			Username: "validusername",
+			Email:    "valid@example.com",
 		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - max password length",
+		requestBody: &api.Password{
+			Hash:     []byte(strings.Repeat("a", passwordMaxLen)),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid create user request - short password",
+		requestBody: &api.Password{
+			Hash:     []byte("short"),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - short password",
+		requestBody: &api.Password{
+			Hash:     []byte(strings.Repeat("a", passwordMinLen-1)),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - empty password",
+		requestBody: &api.Password{
+			Hash:     []byte(""),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - empty spaces password",
+		requestBody: &api.Password{
+			Hash:     []byte("                 "),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - too long password",
+		requestBody: &api.Password{
+			Hash:     []byte(strings.Repeat("a", passwordMaxLen+1)),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+}
 
-		{
-			name: "invalid create user request - short email",
-			requestBody: &api.Password{
-				Hash:     []byte("validpassword"),
-				Username: "validusername",
-				Email:    strings.Repeat("a", minLen-1),
-			},
-			expectedStatus: http.StatusBadRequest,
+var usernameTests = []createUserValidationTest{
+	{
+		name: "valid create user request - empty username is allowed",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "",
+			Email:    "valid@example.com",
 		},
-		{
-			name: "invalid create user request - long email",
-			requestBody: &api.Password{
-				Hash:     []byte("validpassword"),
-				Username: "validusername",
-				Email:    strings.Repeat("a", maxLen+1),
-			},
-			expectedStatus: http.StatusBadRequest,
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - empty spaces username is allowed",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "   ",
+			Email:    "valid@example.com",
 		},
-	}
-	return tests
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid create user request - short username",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: strings.Repeat("a", minLen-1),
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - long username",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: strings.Repeat("a", maxLen+1),
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+}
+
+var emailTests = []createUserValidationTest{
+	{
+		name: "invalid create user request - empty email",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    "",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - empty spaces email",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    "  ",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - short email",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    strings.Repeat("a", minLen-1),
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - long email",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    strings.Repeat("a", maxLen+1),
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+}
+
+type updateUserValidationTest struct {
+	name           string
+	requestBody    *api.UpdatePasswordReq
+	expectedStatus int
+}
+
+var updateUserTests = []updateUserValidationTest{
+	{
+		name: "valid update user request - updating username and password",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash:     []byte("validpassword"),
+			NewUsername: "validusername",
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid update user request - updating only password",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte("validpassword"),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid update user request - updating only username",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: "validusername",
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+
+	{
+		name: "valid update user request - min password length",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte(strings.Repeat("a", passwordMinLen)),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - max password length",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte(strings.Repeat("a", passwordMaxLen)),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid update user request - short password",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte("short"),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - short password",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte(strings.Repeat("a", passwordMinLen-1)),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - too long password",
+		requestBody: &api.UpdatePasswordReq{
+			NewHash: []byte(strings.Repeat("a", passwordMaxLen+1)),
+			Email:   "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+
+	{
+		name: "valid update user request - min username length",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: strings.Repeat("a", minLen),
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - max username length",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: strings.Repeat("a", maxLen),
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid update user request - short username",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: "ra",
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - short username",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: strings.Repeat("a", minLen-1),
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - too long password",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: strings.Repeat("a", maxLen+1),
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
 }

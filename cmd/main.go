@@ -53,6 +53,9 @@ func run() error {
 	}
 
 	// Create a gRPC server mux with the custom middlewares
+	// These middlewares are called before the generated gRPC middlewares
+	// Doing this in this way ensures that authn/authz can be done before the request
+	// hit the remaining gRPC middlewares
 	mws := middlewares.GetMiddlewares()
 	mux := runtime.NewServeMux(runtime.WithMiddlewares(mws...))
 

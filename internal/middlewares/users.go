@@ -42,10 +42,11 @@ func createUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 			//       to contain only the Password object, and not the entire CreatePasswordReq object
 			var req api.CreatePasswordReq
 			if err := marshaler.NewDecoder(r.Body).Decode(&req.Password); err != nil {
-				log.Err(err).Msg("failed to decode request body")
+				log.Err(err).Msg("failed to decode request body while creating user")
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			_ = r.Body.Close()
 
 			// replace password with bcrypt hash
 			plaintext := strings.TrimSpace(string(req.Password.Hash))
@@ -90,10 +91,11 @@ func updateUserMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
 			// decode request body
 			var req api.UpdatePasswordReq
 			if err := marshaler.NewDecoder(r.Body).Decode(&req); err != nil {
-				log.Err(err).Msg("failed to decode request body")
+				log.Err(err).Msg("failed to decode request body while updating user")
 				http.Error(w, err.Error(), http.StatusBadRequest)
 				return
 			}
+			_ = r.Body.Close()
 
 			if len(req.NewHash) > 0 {
 				log.Debug().Msg("update password request, will modify request body to encrypt password")
