@@ -19,6 +19,9 @@ func GetMiddlewares() []runtime.Middleware {
 		authenticationMiddleware(),
 		authorizationMiddleware(),
 
+		// validation middlewares
+		validationMiddleware,
+
 		// user create/update interceptor middlewares
 		createUserMiddleware,
 		updateUserMiddleware,

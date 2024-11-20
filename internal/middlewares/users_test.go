@@ -52,7 +52,7 @@ func Test_createUserMiddleware(t *testing.T) {
 	`, base64.StdEncoding.EncodeToString([]byte(plainTextPassword)))
 
 	// Create a new HTTP request
-	req := httptest.NewRequest(http.MethodPost, "/v1/users/email/ranyodh", bytes.NewReader([]byte(body)))
+	req := httptest.NewRequest(http.MethodPost, "/v1/users", bytes.NewReader([]byte(body)))
 
 	// Create a response recorder
 	rr := httptest.NewRecorder()
@@ -93,7 +93,7 @@ func Test_updateUserMiddleware(t *testing.T) {
 `, base64.StdEncoding.EncodeToString([]byte(newPlainTextPassword)), newUsername)
 
 	// Create a new HTTP request
-	req := httptest.NewRequest(http.MethodPut, "/users/{email=*}", bytes.NewReader([]byte(reqBodyStr)))
+	req := httptest.NewRequest(http.MethodPut, "/users/myuser1", bytes.NewReader([]byte(reqBodyStr)))
 	req = req.WithContext(runtime.NewServerMetadataContext(req.Context(), runtime.ServerMetadata{}))
 
 	// Create a response recorder
