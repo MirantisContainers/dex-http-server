@@ -77,9 +77,12 @@ func Test_validationMiddlewareUpdateUser(t *testing.T) {
 			// Create a response recorder
 			rr := httptest.NewRecorder()
 
+			pathParams := map[string]string{
+				"email": tt.requestBody.Email,
+			}
 			// Call the middleware
 			handler := validationMiddleware(mockNext)
-			handler(rr, req, map[string]string{})
+			handler(rr, req, pathParams)
 
 			// Check the response status code
 			assert.Equal(t, tt.expectedStatus, rr.Code)
