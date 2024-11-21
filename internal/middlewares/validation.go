@@ -161,6 +161,10 @@ func validatePassword(password string) error {
 }
 
 func validateUsername(username string) error {
+	if strings.Contains(username, " ") {
+		return fmt.Errorf("username cannot contain white spaces")
+	}
+
 	if err := validateLength(username, minLen, maxLen); err != nil {
 		return fmt.Errorf("invalid username, %v", err.Error())
 	}

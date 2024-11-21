@@ -217,6 +217,15 @@ var usernameTests = []createUserValidationTest{
 		},
 		expectedStatus: http.StatusBadRequest,
 	},
+	{
+		name: "invalid create user request - username containing empty spaces",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "invalid username",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
 }
 
 var emailTests = []createUserValidationTest{
@@ -365,9 +374,17 @@ var updateUserTests = []updateUserValidationTest{
 		expectedStatus: http.StatusBadRequest,
 	},
 	{
-		name: "invalid create user request - too long password",
+		name: "invalid create user request - too long username",
 		requestBody: &api.UpdatePasswordReq{
 			NewUsername: strings.Repeat("a", maxLen+1),
+			Email:       "valid@example.com",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - username containing empty spaces",
+		requestBody: &api.UpdatePasswordReq{
+			NewUsername: "invalid username",
 			Email:       "valid@example.com",
 		},
 		expectedStatus: http.StatusBadRequest,
