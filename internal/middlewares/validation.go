@@ -24,6 +24,16 @@ const (
 	maxLen = 100
 )
 
+// *********************************************************************************************
+// NOTE: The fields from api.Password (Dex) are mapped to different fields in the UI
+//       api.Password.Email -> username field in the UI
+//       api.Password.Username -> name field in the UI
+// 		 api.Password.Hash -> password field in the UI
+//
+// The validation functions are named as such to reflect the fields in the UI
+// The response from the validation functions are also formatted to reflect the fields in the UI
+// **********************************************************************************************
+
 // validationMiddleware validates the request body for create and update user requests
 // It checks the length of the username, email and password
 func validationMiddleware(next runtime.HandlerFunc) runtime.HandlerFunc {
@@ -74,31 +84,31 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 	}
 	_ = r.Body.Close()
 
-	// email field is extracted from the path params in this middleware
-	// The gRPC gateway will populate the req.Email field with the email from the path params
+	// username field is extracted from the path params 'email' in this middleware
+	// The gRPC gateway will populate the req.Email field with the username from the path params
 	// but that happens after this middleware is called
-	email := strings.TrimSpace(pathParams["email"])
-	if len(email) == 0 {
-		log.Err(fmt.Errorf("email is required")).Msg("invalid email")
-		http.Error(w, "email is required", http.StatusBadRequest)
+	username := strings.TrimSpace(pathParams["email"])
+	if len(username) == 0 {
+		log.Err(fmt.Errorf("username is required")).Msg("invalid username")
+		http.Error(w, "username is required", http.StatusBadRequest)
 		return
 	}
 
-	newUsername := strings.TrimSpace(req.NewUsername)
-	newHash := string(req.NewHash)
+	newName := strings.TrimSpace(req.NewUsername)
+	newPassword := string(req.NewHash)
 
 	// only username when it is provided as it is optional
-	if len(newUsername) > 0 {
-		if err := validateUsername(newUsername); err != nil {
-			log.Err(err).Msg("invalid username")
+	if len(newName) > 0 {
+		if err := validateName(newName); err != nil {
+			log.Err(err).Msg("invalid name")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 	}
 
-	// only validate newhash when it is provided as it is optional
-	if len(newHash) > 0 {
-		if err := validatePassword(newHash); err != nil {
+	// only validate newPassword when it is provided as it is optional
+	if len(newPassword) > 0 {
+		if err := validatePassword(newPassword); err != nil {
 			log.Err(err).Msg("invalid password")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
@@ -118,11 +128,11 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 }
 
 func validateUserRequest(userPassword *api.Password) error {
+	username := strings.TrimSpace(userPassword.Email)
 	password := strings.TrimSpace(string(userPassword.Hash))
-	username := strings.TrimSpace(userPassword.Username)
-	email := strings.TrimSpace(userPassword.Email)
+	name := strings.TrimSpace(userPassword.Username)
 
-	if err := validateEmail(email); err != nil {
+	if err := validateUsername(username); err != nil {
 		return err
 	}
 
@@ -130,9 +140,9 @@ func validateUserRequest(userPassword *api.Password) error {
 		return err
 	}
 
-	// username is optional field
-	if len(username) > 0 {
-		if err := validateUsername(username); err != nil {
+	// name is optional field
+	if len(name) > 0 {
+		if err := validateName(name); err != nil {
 			return err
 		}
 	}
@@ -140,9 +150,14 @@ func validateUserRequest(userPassword *api.Password) error {
 	return nil
 }
 
-func validateEmail(email string) error {
-	if err := validateLength(email, minLen, maxLen); err != nil {
-		return fmt.Errorf("invalid email, %v", err.Error())
+// note: email is mapped to 'username' in the UI. Therefore, we validate the email as the username
+func validateUsername(username string) error {
+	if strings.Contains(username, " ") {
+		return fmt.Errorf("username cannot contain white spaces")
+	}
+
+	if err := validateLength(username, minLen, maxLen); err != nil {
+		return fmt.Errorf("invalid username, %v", err.Error())
 	}
 	return nil
 }
@@ -160,13 +175,9 @@ func validatePassword(password string) error {
 	return nil
 }
 
-func validateUsername(username string) error {
-	if strings.Contains(username, " ") {
-		return fmt.Errorf("username cannot contain white spaces")
-	}
-
-	if err := validateLength(username, minLen, maxLen); err != nil {
-		return fmt.Errorf("invalid username, %v", err.Error())
+func validateName(name string) error {
+	if err := validateLength(name, 0, maxLen); err != nil {
+		return fmt.Errorf("invalid name, %v", err.Error())
 	}
 
 	return nil

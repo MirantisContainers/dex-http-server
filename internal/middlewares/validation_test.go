@@ -180,54 +180,6 @@ var passwordTests = []createUserValidationTest{
 	},
 }
 
-var usernameTests = []createUserValidationTest{
-	{
-		name: "valid create user request - empty username is allowed",
-		requestBody: &api.Password{
-			Hash:     []byte("validpassword"),
-			Username: "",
-			Email:    "valid@example.com",
-		},
-		expectedStatus: http.StatusOK,
-	},
-	{
-		name: "valid create user request - empty spaces username is allowed",
-		requestBody: &api.Password{
-			Hash:     []byte("validpassword"),
-			Username: "   ",
-			Email:    "valid@example.com",
-		},
-		expectedStatus: http.StatusOK,
-	},
-	{
-		name: "invalid create user request - short username",
-		requestBody: &api.Password{
-			Hash:     []byte("validpassword"),
-			Username: strings.Repeat("a", minLen-1),
-			Email:    "valid@example.com",
-		},
-		expectedStatus: http.StatusBadRequest,
-	},
-	{
-		name: "invalid create user request - long username",
-		requestBody: &api.Password{
-			Hash:     []byte("validpassword"),
-			Username: strings.Repeat("a", maxLen+1),
-			Email:    "valid@example.com",
-		},
-		expectedStatus: http.StatusBadRequest,
-	},
-	{
-		name: "invalid create user request - username containing empty spaces",
-		requestBody: &api.Password{
-			Hash:     []byte("validpassword"),
-			Username: "invalid username",
-			Email:    "valid@example.com",
-		},
-		expectedStatus: http.StatusBadRequest,
-	},
-}
-
 var emailTests = []createUserValidationTest{
 	{
 		name: "invalid create user request - empty email",
@@ -262,6 +214,72 @@ var emailTests = []createUserValidationTest{
 			Hash:     []byte("validpassword"),
 			Username: "validusername",
 			Email:    strings.Repeat("a", maxLen+1),
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+	{
+		name: "invalid create user request - email containing empty spaces",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    "invalid email",
+		},
+		expectedStatus: http.StatusBadRequest,
+	},
+}
+
+var usernameTests = []createUserValidationTest{
+	{
+		name: "valid create user request",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "validusername",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - empty username is allowed",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - empty spaces username is allowed",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "   ",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid create user request - username containing empty spaces",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "invalid username",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "valid create user request - short username",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: "a",
+			Email:    "valid@example.com",
+		},
+		expectedStatus: http.StatusOK,
+	},
+	{
+		name: "invalid create user request - long username",
+		requestBody: &api.Password{
+			Hash:     []byte("validpassword"),
+			Username: strings.Repeat("a", maxLen+1),
+			Email:    "valid@example.com",
 		},
 		expectedStatus: http.StatusBadRequest,
 	},
@@ -358,33 +376,25 @@ var updateUserTests = []updateUserValidationTest{
 		expectedStatus: http.StatusOK,
 	},
 	{
-		name: "invalid update user request - short username",
+		name: "valid update user request - short username",
 		requestBody: &api.UpdatePasswordReq{
-			NewUsername: "ra",
+			NewUsername: "r",
 			Email:       "valid@example.com",
 		},
-		expectedStatus: http.StatusBadRequest,
+		expectedStatus: http.StatusOK,
 	},
 	{
-		name: "invalid create user request - short username",
+		name: "valid create user request - username containing empty spaces",
 		requestBody: &api.UpdatePasswordReq{
-			NewUsername: strings.Repeat("a", minLen-1),
+			NewUsername: "invalid username",
 			Email:       "valid@example.com",
 		},
-		expectedStatus: http.StatusBadRequest,
+		expectedStatus: http.StatusOK,
 	},
 	{
 		name: "invalid create user request - too long username",
 		requestBody: &api.UpdatePasswordReq{
 			NewUsername: strings.Repeat("a", maxLen+1),
-			Email:       "valid@example.com",
-		},
-		expectedStatus: http.StatusBadRequest,
-	},
-	{
-		name: "invalid create user request - username containing empty spaces",
-		requestBody: &api.UpdatePasswordReq{
-			NewUsername: "invalid username",
 			Email:       "valid@example.com",
 		},
 		expectedStatus: http.StatusBadRequest,
