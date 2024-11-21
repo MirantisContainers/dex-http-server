@@ -79,7 +79,7 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 	// but that happens after this middleware is called
 	email := strings.TrimSpace(pathParams["email"])
 	if len(email) == 0 {
-		log.Err(fmt.Errorf("email is required")).Msg("failed to validate email")
+		log.Err(fmt.Errorf("email is required")).Msg("invalid email")
 		http.Error(w, "email is required", http.StatusBadRequest)
 		return
 	}
@@ -90,7 +90,7 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 	// only username when it is provided as it is optional
 	if len(newUsername) > 0 {
 		if err := validateUsername(newUsername); err != nil {
-			log.Err(err).Msg("failed to validate username")
+			log.Err(err).Msg("invalid username")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -99,7 +99,7 @@ func validateUpdateUserRequest(next runtime.HandlerFunc, w http.ResponseWriter, 
 	// only validate newhash when it is provided as it is optional
 	if len(newHash) > 0 {
 		if err := validatePassword(newHash); err != nil {
-			log.Err(err).Msg("failed to validate password")
+			log.Err(err).Msg("invalid password")
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -142,7 +142,7 @@ func validateUserRequest(userPassword *api.Password) error {
 
 func validateEmail(email string) error {
 	if err := validateLength(email, minLen, maxLen); err != nil {
-		return fmt.Errorf("failed to validate email, %v", err.Error())
+		return fmt.Errorf("invalid email, %v", err.Error())
 	}
 	return nil
 }
@@ -154,7 +154,7 @@ func validatePassword(password string) error {
 	}
 
 	if err := validateLength(password, passwordMinLen, passwordMaxLen); err != nil {
-		return fmt.Errorf("failed to validate password, %v", err.Error())
+		return fmt.Errorf("invalid password, %v", err.Error())
 	}
 
 	return nil
@@ -162,7 +162,7 @@ func validatePassword(password string) error {
 
 func validateUsername(username string) error {
 	if err := validateLength(username, minLen, maxLen); err != nil {
-		return fmt.Errorf("failed to validate username, %v", err.Error())
+		return fmt.Errorf("invalid username, %v", err.Error())
 	}
 
 	return nil
